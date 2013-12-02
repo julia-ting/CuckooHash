@@ -157,9 +157,11 @@ public class CuckooHashTable<Integer, V> {
 		} else {
 			collisionTracker++;
 			currEntry = table[index];
+			System.out.println("CurrEntry: " + currEntry.getKey());
 			table[index] = newEntry;
 			int currIndex = hash(tableTwoHash, currEntry.getKey()) % 
 					tableTwo.length;
+			System.out.println("currIndex: " + currIndex);
 			while (!isValidEntryIndex(currTable, currIndex) &&
 					collisionTracker < (table.length)*20) {
 				oldEntry = currTable[currIndex];
@@ -169,18 +171,26 @@ public class CuckooHashTable<Integer, V> {
 					currIndex = hash(tableTwoHash, currEntry.getKey()) %
 							table.length;
 					currTable = tableTwo;
+					System.out.println("CurrEntry: " + currEntry.getKey() + " @ collision: " + collisionTracker);
+
+					System.out.println("table: 2 | currIndex: " + currIndex);
+
 				} else {
 					currIndex = hash(tableOneHash, currEntry.getKey()) %
 							tableTwo.length;
 					currTable = table;
+					System.out.println("CurrEntry: " + currEntry.getKey() + " @ collision: " + collisionTracker);
+					System.out.println("table: 1 | currIndex: " + currIndex);
+
 				}
 				collisionTracker++;
-				System.out.println("Collisions: " + collisionTracker);
+				//System.out.println("Collisions: " + collisionTracker);
 			}
 			if (collisionTracker >= table.length*20) {
 				System.out.println("Rehashing!");
 				rehash();
-				addEntry(key, value, tableOneHash, tableTwoHash);
+				put(currEntry.getKey(), currEntry.getValue());
+				System.out.println("Done rehashing");
 				return;
 			}
 			currTable[currIndex] = currEntry;
@@ -280,26 +290,6 @@ public class CuckooHashTable<Integer, V> {
 		return keys;
 	}
 	
-	/**
-	 * Return the number of values associated with one key
-	 * Return -1 if the key does not exist in this table
-	 * @param key
-	 * @return
-	 */
-	public int keyValues(Integer key){
-		if(!contains(key)){
-			return -1;
-		}
-		else{
-			int count = 1;
-			MapEntry current = table[findKey(key)];
-			while(current.getNext()!=null){
-				count += 1;
-				current=current.getNext();
-			}
-			return count;
-		}
-	}
 	
 	private int[] findKey(Integer key){
 		int index = hash(tableOneHash, key) % table.length;
@@ -348,16 +338,16 @@ public class CuckooHashTable<Integer, V> {
 		size = 0;
 	}
 	
-	   public int hashOne(int key){
-           int intLength = String.valueOf(key).length();
-           int base = 10;
-           int sum = 0;
-           for(int x = 0; x < intLength; x++){
-                   sum += (key%base)/(base/10);
-                   base = base*10;
-           }
-           //System.out.println("HASH ONE - Key: " + key + " | HASH: " + sum);
-           return sum;
+   public int hashOne(int key){
+       int intLength = String.valueOf(key).length();
+       int base = 10;
+       int sum = 0;
+       for(int x = 0; x < intLength; x++){
+               sum += (key%base)/(base/10);
+               base = base*10;
+       }
+       //System.out.println("HASH ONE - Key: " + key + " | HASH: " + sum);
+       return sum;
    }
 
    public int hashTwo(int key){
@@ -380,12 +370,13 @@ public class CuckooHashTable<Integer, V> {
                    result += (key%base)/(base/10)*BASE;
                    base = base*10;
            }
-           //System.out.println("HASH THREE - Key: " + key + " | HASH: " + base);
+           System.out.println("HASH THREE - Key: " + key + " | HASH: " + base);
            return result;
    }
    
    public void rehash(){                	
    	Random rand = new Random();
+   	/*
    	int hashChanges = rand.nextInt(3);
    	if (hashChanges == 1){
    		tableOneHash = rand.nextInt(3);
@@ -405,10 +396,12 @@ public class CuckooHashTable<Integer, V> {
 				tableTwoHash = rand.nextInt(3);
 			}
    	}
+   	*/
+   	tableTwoHash = 3;
    	MapEntry<Integer, V>[] tableClone = table.clone();
    	MapEntry<Integer, V>[] tableTwoClone = tableTwo.clone();
-   	table = new MapEntry[table.length]; //size of table?
-   	tableTwo = new MapEntry[tableTwo.length]; //size of table two?
+   	this.table = new MapEntry[table.length]; //size of table?
+   	this.tableTwo = new MapEntry[tableTwo.length]; //size of table two?
    	this.size = 0;
    	for (int x = 0; x < tableClone.length; x++){
    		if (tableClone[x] != null){

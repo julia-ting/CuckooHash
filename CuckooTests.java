@@ -111,13 +111,43 @@ public class CuckooTests {
 		test = new CuckooHashTable<Integer, String>();
 		test.put(5, "5");
 		test.put(0, "0");
-		System.out.println(test);
+		//System.out.println(test);
 		test.put(5, "five");
 		table = test.getTable();
 		tableTwo = test.getTableTwo();
-		System.out.println(test);
+		//System.out.println(test);
 		assertEquals("five", tableTwo[0].getValue());
 		assertEquals(2, test.size());
+	}
+	
+	// Remove an add collision and add after
+	@Test
+	public void testPut7() {
+		test = new CuckooHashTable<Integer, String>();
+		test.put(5, "5");
+		test.put(500, "500");
+		test.remove(5);
+		test.put(50, "50");
+		
+		table = test.getTable();
+		tableTwo = test.getTableTwo();
+		
+		assertEquals(50, (int)table[0].getKey());
+		assertEquals(500, (int)tableTwo[0].getKey());
+	}
+	
+	// Simple add after remove
+	@Test
+	public void testPut8() {
+		test = new CuckooHashTable<Integer, String>();
+		test.put(5, "5");
+		test.remove(5);
+		test.put(0, "0");
+		
+		table = test.getTable();
+		assertEquals(0, (int)table[0].getKey());
+		
+		
 	}
 	
 	@Test
