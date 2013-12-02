@@ -206,19 +206,22 @@ public class CuckooHashTable<Integer, V> {
 		if(!contains(key)){
 			return null;
 		}
-		MapEntry<Integer,V> current = table[findKey(key)];
-		if(current.getNext()==null){
-			current.setRemoved(true);
+		int[] tableAndIndex = findKey(key); //contains reference information
+		int tableNum = tableAndIndex[0]; //number of the table to look at
+		int tableIndex = tableAndIndex[1]; //index to look at
+		if(tableNum == 1) {
+			table[tableIndex].setRemoved(true);
 			size--;
-			return current.getValue();
+			V temp = table[tableIndex].getValue(); //return the removed value
+			return temp;
+		} else if(tableNum == 2) {
+			tableTwo[tableIndex].setRemoved(true);
+			size--;
+			V temp = tableTwo[tableIndex].getValue(); //return the removed value
+			return temp;
+		} else {
+			return null;
 		}
-		for(int ii=0; ii<keyValues(key)-2;ii++){
-			current=current.getNext();
-		}
-		V temp = current.getNext().getValue();
-		current.setNext(null);
-		size--;
-		return temp;
 	}
 	
 	/**
@@ -228,7 +231,7 @@ public class CuckooHashTable<Integer, V> {
 	 * @return
 	 */
 	public boolean contains(Integer key){
-		return findKey(key)>-1;
+		return (findKey(key)[1] > -1);
 	}
 	
 	/**
@@ -240,14 +243,14 @@ public class CuckooHashTable<Integer, V> {
 	 */
 	public Collection<V> values(){
 		Collection<V> values = new ArrayList<V>();
-		for(int ii=0;ii<table.length;ii++){
+		for(int ii=0;ii<table.length;ii++){ //values from table
 			if(table[ii]!=null && !table[ii].isRemoved()){
-				MapEntry<Integer,V> current = table[ii];
-				values.add(current.getValue());
-				while(current.getNext()!=null){
-					current=current.getNext();
-					values.add(current.getValue());
-				}
+				values.add(table[ii].getValue());
+			}
+		}
+		for(int ii=0;ii<tableTwo.length;ii++){ //values from tableTwo
+			if(tableTwo[ii]!=null && !tableTwo[ii].isRemoved()){
+				values.add(tableTwo[ii].getValue());
 			}
 		}
 		return values;
@@ -267,6 +270,11 @@ public class CuckooHashTable<Integer, V> {
 		for(int ii=0;ii<table.length;ii++){
 			if(table[ii]!=null && !table[ii].isRemoved()){
 				keys.add(table[ii].getKey());
+			}
+		}
+		for(int ii=0;ii<tableTwo.length;ii++){
+			if(tableTwo[ii]!=null && !tableTwo[ii].isRemoved()){
+				keys.add(tableTwo[ii].getKey());
 			}
 		}
 		return keys;
@@ -293,17 +301,20 @@ public class CuckooHashTable<Integer, V> {
 		}
 	}
 	
-	private int findKey(Integer key){
-		int ii = 0;
-		while(ii<table.length){
-			if(table[ii]!=null 
-			   && !table[ii].isRemoved()
-			   && table[ii].getKey().equals(key)){
-				return ii;
-			}
-			ii++;
+	private int[] findKey(Integer key){
+		int index = hash(tableOneHash, key) % table.length;
+		int indexTwo = hash(tableTwoHash, key) % tableTwo.length;
+		int[] tableAndIndex = new int[2]; //reference information
+		if(table[index]!=null && !table[index].isRemoved() && table[index].getKey().equals(key)) {
+				tableAndIndex[0] = 1; //set which table to look at
+				tableAndIndex[1] = index; //set index to look at
+				return tableAndIndex;
+		} else if(tableTwo[indexTwo]!=null && !tableTwo[indexTwo].isRemoved() && tableTwo[indexTwo].getKey().equals(key)) {
+				tableAndIndex[0] = 2; //set table to look at
+				tableAndIndex[1] = indexTwo; //set index to look at
+				return tableAndIndex;
 		}
-		return -1;
+		return null;
 	}
 	/**
 	 * Return a set of all the unique key-value entries
@@ -317,17 +328,12 @@ public class CuckooHashTable<Integer, V> {
 		Set<MapEntry<Integer,V>> entries = new HashSet();
 		for(int ii=0;ii<table.length;ii++){
 			if(table[ii]!=null && !table[ii].isRemoved()){
-				MapEntry current = table[ii];
-				ArrayList<V> values = new ArrayList();
-				entries.add(current);
-				values.add((V)current.getValue());
-				while(current.getNext()!=null){
-					current=current.getNext();
-					if(!values.contains((V)current.getValue())){
-						entries.add(current);
-						values.add((V)current.getValue());
-					}
-				}
+				entries.add(table[ii]); //entries from table
+			}
+		}
+		for(int ii=0;ii<tableTwo.length;ii++){
+			if(tableTwo[ii]!=null && !tableTwo[ii].isRemoved()){
+				entries.add(tableTwo[ii]); //entries from tableTwo
 			}
 		}
 		return entries;
@@ -336,8 +342,9 @@ public class CuckooHashTable<Integer, V> {
 	/**
 	 * Clears the hash table
 	 */
-	public void clear(){
-		table = new MapEntry[11];
+	public void clear() {
+		table = new MapEntry[INITIAL_TABLE_SIZE / 2];
+		tableTwo = new MapEntry[INITIAL_TABLE_SIZE / 2];
 		size = 0;
 	}
 	
