@@ -399,7 +399,7 @@ public class CuckooHashTable<Integer, V> {
 			}
    	}
    	MapEntry<Integer, V>[] tableClone = table.clone();
-   	MapEntry<Integer, V>[] tableTwoClone = table.clone();
+   	MapEntry<Integer, V>[] tableTwoClone = tableTwo.clone();
    	table = new MapEntry[table.length]; //size of table?
    	tableTwo = new MapEntry[tableTwo.length]; //size of table two?
    	this.size = 0;

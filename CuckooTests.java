@@ -9,10 +9,8 @@ public class CuckooTests {
 	MapEntry<Integer, String>[] table;
 	MapEntry<Integer, String>[] tableTwo;
 	
-	//Test add existing entry
 	// Test add to removed spot
 	//Test collide to removed spot
-	// Test infinite loop
 
 	// Put to empty hashtable
 	@Test
