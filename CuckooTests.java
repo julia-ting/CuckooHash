@@ -71,6 +71,7 @@ public class CuckooTests {
 		assertEquals(10, table.length);
 		assertEquals(10, tableTwo.length);
 		
+		assertEquals(0, (int)table[0].getKey());
 		assertEquals(1, (int)table[1].getKey());
 		assertEquals(2, (int)table[2].getKey());
 		assertEquals(3, (int)table[3].getKey());
@@ -91,7 +92,34 @@ public class CuckooTests {
 		test.put(12, "12");
 		System.out.println(test);
 		assertEquals(3, test.size());
-
+	}
+	
+	// Add existing entry
+	@Test
+	public void testPut5() {
+		test = new CuckooHashTable<Integer, String>();
+		test.put(21, "21");
+		table = test.getTable();
+		assertEquals("21", table[3].getValue());
+		test.put(21, "twenty-one");
+		table = test.getTable();
+		assertEquals("twenty-one", table[3].getValue());
+		assertEquals(1, test.size());
+	}
+	
+	// Add existing entry after collision
+	@Test
+	public void testPut6() {
+		test = new CuckooHashTable<Integer, String>();
+		test.put(5, "5");
+		test.put(0, "0");
+		System.out.println(test);
+		test.put(5, "five");
+		table = test.getTable();
+		tableTwo = test.getTableTwo();
+		System.out.println(test);
+		assertEquals("five", tableTwo[0].getValue());
+		assertEquals(2, test.size());
 	}
 	
 	@Test

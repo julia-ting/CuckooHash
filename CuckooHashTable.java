@@ -137,6 +137,14 @@ public class CuckooHashTable<Integer, V> {
 					}
 				}
 			}
+			if (tableTwo[indexTwo] != null) {
+				if (!(tableTwo[indexTwo].isRemoved())) {
+					if (tableTwo[indexTwo].getKey().equals(key)) {
+						tableTwo[indexTwo] = newEntry;
+						return;
+					}
+				}
+			}
 		}
 		// No existing key, adds accordingly
 		// while (!isValidEntry(whichTable, index) && collisionTracker < size*100) {
@@ -172,6 +180,8 @@ public class CuckooHashTable<Integer, V> {
 			if (collisionTracker >= table.length*20) {
 				System.out.println("Rehashing!");
 				rehash();
+				addEntry(key, value, tableOneHash, tableTwoHash);
+				return;
 			}
 			currTable[currIndex] = currEntry;
 		}
