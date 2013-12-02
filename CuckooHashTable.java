@@ -75,7 +75,7 @@ public class CuckooHashTable<Integer, V> {
 	 * @param value This can be null
 	 */
 	public void put(Integer key,V value) {
-		if (((float)(size+1) / table.length) > MAX_LOAD_FACTOR) {
+		if (((float)(size+1) / (table.length*2)) > MAX_LOAD_FACTOR) {
 			// regrow
 			MapEntry<Integer,V>[] temp = table;
 			MapEntry<Integer,V>[] tempTwo = tableTwo;
@@ -125,7 +125,6 @@ public class CuckooHashTable<Integer, V> {
 				// and it equals the key currently being added
 				if (table[index].getKey().equals(key)) {
 					table[index] = newEntry;
-					size++;
 					return;
 				}
 			// that something HAS been removed
@@ -134,7 +133,6 @@ public class CuckooHashTable<Integer, V> {
 				if (!(tableTwo[indexTwo].isRemoved())) {
 					if (tableTwo[indexTwo].getKey().equals(key)) {
 						tableTwo[indexTwo] = newEntry;
-						size++;
 						return;
 					}
 				}
@@ -171,14 +169,14 @@ public class CuckooHashTable<Integer, V> {
 				collisionTracker++;
 				System.out.println("Collisions: " + collisionTracker);
 			}
-			if (collisionTracker > table.length*20) {
+			if (collisionTracker >= table.length*20) {
 				System.out.println("Rehashing!");
 				rehash();
 			}
 			currTable[currIndex] = currEntry;
-
 		}
 		size++;
+
 	}
 	
 	//Helper method - checks if valid index to enter;
@@ -394,6 +392,7 @@ public class CuckooHashTable<Integer, V> {
    	MapEntry<Integer, V>[] tableTwoClone = table.clone();
    	table = new MapEntry[table.length]; //size of table?
    	tableTwo = new MapEntry[tableTwo.length]; //size of table two?
+   	this.size = 0;
    	for (int x = 0; x < tableClone.length; x++){
    		if (tableClone[x] != null){
    			put(tableClone[x].getKey(),tableClone[x].getValue());

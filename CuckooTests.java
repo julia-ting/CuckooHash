@@ -42,14 +42,10 @@ public class CuckooTests {
 	public void testPut2() {
 		test = new CuckooHashTable<Integer, String>();
 		test.put(15, "15");		// 6 % 5 = 1
-		System.out.println(test);
 
 		test.put(10, "10");		// 1 % 5 = 1 they collide, 15 now in tableTwo at 5 % 5 = 0
-		System.out.println(test);
 
-		test.put(24, "24");
-		
-		System.out.println(test);
+		test.put(24, "24");		
 		table = test.getTable();
 		tableTwo = test.getTableTwo();
 		assertEquals(15, (int)table[1].getKey());
@@ -64,25 +60,38 @@ public class CuckooTests {
 		test.put(15, "15");		// 6 % 5 = 1
 		test.put(10, "10");		// 1 % 5 = 1 they collide, 15 now in tableTwo at 5 % 5 = 0
 		test.put(24, "24");
-		System.out.println(test);
+		test.put(3, "3");
+		test.put(4, "4");
+		test.put(0, "0");
+		test.put(1, "1");
+		test.put(2, "2");
 		
-		test.put(51, "51");
-		System.out.println(test);
 		table = test.getTable();
 		tableTwo = test.getTableTwo();
 		assertEquals(10, table.length);
 		assertEquals(10, tableTwo.length);
 		
-		assertEquals(10, (int)table[1].getKey());
+		assertEquals(1, (int)table[1].getKey());
+		assertEquals(2, (int)table[2].getKey());
+		assertEquals(3, (int)table[3].getKey());
+		assertEquals(4, (int)table[4].getKey());
+		assertEquals(24, (int)table[6].getKey());
+		assertEquals(10, (int)tableTwo[0].getKey());
 		assertEquals(15, (int)tableTwo[5].getKey());
-		assertEquals(24, (int)tableTwo[8].getKey());
-		assertEquals(51, (int)table[6].getKey());
 	}
 	
 	// Test infinite loop & rehash
 	@Test
 	public void testPut4() {
 		test = new CuckooHashTable<Integer, String>();
+		test.put(21, "21");
+		System.out.println(test);
+		test.put(17, "17");
+		System.out.println(test);
+		test.put(12, "12");
+		System.out.println(test);
+		assertEquals(3, test.size());
+
 	}
 	
 	@Test
