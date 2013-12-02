@@ -144,7 +144,7 @@ public class CuckooHashTable<Integer, V> {
 		// while (!isValidEntry(whichTable, index) && collisionTracker < size*100) {
 		int collisionTracker = 0;
 		MapEntry<Integer,V>[] currTable = tableTwo;
-		MapEntry<Integer,V> currEntry = table[index];
+		MapEntry<Integer,V> currEntry;
 		MapEntry<Integer,V> oldEntry;
 		if (isValidEntryIndex(table, index)) {
 			table[index] = newEntry;
@@ -160,17 +160,19 @@ public class CuckooHashTable<Integer, V> {
 				currTable[currIndex] = currEntry;
 				currEntry = oldEntry;
 				if (currTable == table) {
-					currIndex = hash(tableOneHash, currEntry.getKey()) %
+					currIndex = hash(tableTwoHash, currEntry.getKey()) %
 							table.length;
 					currTable = tableTwo;
 				} else {
-					currIndex = hash(tableTwoHash, currEntry.getKey()) %
+					currIndex = hash(tableOneHash, currEntry.getKey()) %
 							tableTwo.length;
 					currTable = table;
 				}
 				collisionTracker++;
+				System.out.println("Collisions: " + collisionTracker);
 			}
 			if (collisionTracker > table.length*20) {
+				System.out.println("Rehashing!");
 				rehash();
 			}
 			currTable[currIndex] = currEntry;
@@ -182,28 +184,6 @@ public class CuckooHashTable<Integer, V> {
 	//Helper method - checks if valid index to enter;
 	private boolean isValidEntryIndex(MapEntry<Integer,V>[] table, int i) {
 		return (table[i] == null || table[i].isRemoved()); 
-	}
-	
-	private void resize(){
-		int newSize = table.length*2+1;
-		MapEntry<Integer,V>[] newTable = new MapEntry[newSize];
-		for(int ii=0; ii<table.length; ii++){
-			if(table[ii]!=null && !table[ii].isRemoved()){
-				int index = (table[ii].getKey().hashCode())%(newSize);
-				newTable[linearProbe(newTable,index)]=table[ii];
-			}
-		}
-		table=newTable;
-	}
-	
-	private int linearProbe(MapEntry[] table, int index){
-		while(table[index]!=null && !table[index].isRemoved()){
-			index += 1;
-			if(index>=table.length){
-				index=0;
-			}
-		}
-		return index;
 	}
 	
 	/**
@@ -361,7 +341,7 @@ public class CuckooHashTable<Integer, V> {
                    sum += (key%base)/(base/10);
                    base = base*10;
            }
-           System.out.println("Key: " + key + " | HASH: " + sum);
+           //System.out.println("HASH ONE - Key: " + key + " | HASH: " + sum);
            return sum;
    }
 
@@ -373,7 +353,7 @@ public class CuckooHashTable<Integer, V> {
                    product *= (key%base)/(base/10);
                    base = base*10;
            }
-           System.out.println("Key: " + key + " | HASH: " + product);
+         //  System.out.println("HASH TWO - Key: " + key + " | HASH: " + product);
            return product;
    }
 
@@ -385,7 +365,7 @@ public class CuckooHashTable<Integer, V> {
                    result += (key%base)/(base/10)*BASE;
                    base = base*10;
            }
-           System.out.println("Key: " + key + " | HASH: " + sum);
+           //System.out.println("HASH THREE - Key: " + key + " | HASH: " + base);
            return result;
    }
    
@@ -429,6 +409,27 @@ public class CuckooHashTable<Integer, V> {
 	/*
 	 * The following methods will be used for grading purposes do not modify them
 	 */
+   public String toString() {
+	   String result = "TABLE ONE: ";
+	   for (int i = 0; i < table.length; i++) {
+		   if (table[i] == null) {
+			   result = result + i + "|NULL" + " - ";
+		   } else {
+			   result = result + i + "|" + table[i].getKey() + " - ";
+		   }
+	   }
+	   result = result + "\nTABLE TWO: ";
+	   for (int i = 0; i < tableTwo.length; i++) {
+		   if (tableTwo[i] == null) {
+			   result = result + i + "|NULL" + " - ";
+		   } else {
+			   result = result + i + "|" + tableTwo[i].getKey() + " - ";
+		   }
+	   }
+	   result = result + "\n~~~~~~~~~~~~~";
+	   
+	   return result;
+   }
 	
 	public int size(){
 		return size;
@@ -440,6 +441,10 @@ public class CuckooHashTable<Integer, V> {
 	
 	public MapEntry<Integer, V>[] getTable() {
 		return table;
+	}
+	
+	public MapEntry<Integer, V>[] getTableTwo() {
+		return tableTwo;
 	}
 	
 	public void setTable(MapEntry<Integer, V>[] table) {
