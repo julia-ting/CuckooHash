@@ -161,4 +161,35 @@ public class CuckooTests {
 		test = new CuckooHashTable<Integer, String>();
 		assertEquals(test.hashTwo(54), 20);
 	}
+	
+	// Remove from hashtable
+	@Test
+	public void testRemove1() {
+		CuckooHashTable<Integer, String> test = new CuckooHashTable<Integer, String>();
+		test.put(5, "hi");
+		String look = test.remove(5);
+		assertEquals(look, "hi");
+	}
+	
+	@Test
+	public void testRemove2() {
+		CuckooHashTable<Integer, String> test = new CuckooHashTable<Integer, String>();
+		test.put(6, "hi");
+		test.put(5, "hello");
+		String look = test.remove(5);
+		assertEquals(look, "hello");
+		String look2 = test.remove(6);
+		assertEquals(look2, "hi");
+	}
+	
+	@Test
+	public void testRemove3() {
+		CuckooHashTable<Integer, String> test = new CuckooHashTable<Integer, String>();
+		test.put(5, "hi");
+		test.put(10, "hello");
+		String look = test.remove(5);
+		assertEquals(look, "hi");
+		String look2 = test.remove(10);
+		assertEquals(look2, "hello");
+	}
 }
