@@ -157,11 +157,11 @@ public class CuckooHashTable<Integer, V> {
 		} else {
 			collisionTracker++;
 			currEntry = table[index];
-			System.out.println("CurrEntry: " + currEntry.getKey());
+			//System.out.println("CurrEntry: " + currEntry.getKey());
 			table[index] = newEntry;
 			int currIndex = hash(tableTwoHash, currEntry.getKey()) % 
 					tableTwo.length;
-			System.out.println("currIndex: " + currIndex);
+			//System.out.println("currIndex: " + currIndex);
 			while (!isValidEntryIndex(currTable, currIndex) &&
 					collisionTracker < (table.length)*20) {
 				oldEntry = currTable[currIndex];
@@ -171,26 +171,26 @@ public class CuckooHashTable<Integer, V> {
 					currIndex = hash(tableTwoHash, currEntry.getKey()) %
 							table.length;
 					currTable = tableTwo;
-					System.out.println("CurrEntry: " + currEntry.getKey() + " @ collision: " + collisionTracker);
+				//	System.out.println("CurrEntry: " + currEntry.getKey() + " @ collision: " + collisionTracker);
 
-					System.out.println("table: 2 | currIndex: " + currIndex);
+				//	System.out.println("table: 2 | currIndex: " + currIndex);
 
 				} else {
 					currIndex = hash(tableOneHash, currEntry.getKey()) %
 							tableTwo.length;
 					currTable = table;
-					System.out.println("CurrEntry: " + currEntry.getKey() + " @ collision: " + collisionTracker);
-					System.out.println("table: 1 | currIndex: " + currIndex);
+					//System.out.println("CurrEntry: " + currEntry.getKey() + " @ collision: " + collisionTracker);
+					//System.out.println("table: 1 | currIndex: " + currIndex);
 
 				}
 				collisionTracker++;
 				//System.out.println("Collisions: " + collisionTracker);
 			}
 			if (collisionTracker >= table.length*20) {
-				System.out.println("Rehashing!");
+				//System.out.println("Rehashing!");
 				rehash();
 				put(currEntry.getKey(), currEntry.getValue());
-				System.out.println("Done rehashing");
+				//System.out.println("Done rehashing");
 				return;
 			}
 			currTable[currIndex] = currEntry;
@@ -363,57 +363,82 @@ public class CuckooHashTable<Integer, V> {
    }
 
    public int hashThree(int key){
-           int intLength = String.valueOf(key).length();
-           int base = 10;
-           int result = 0;
-           for(int x = 0; x < intLength; x++){
-                   result += (key%base)/(base/10)*BASE;
-                   base = base*10;
-           }
-           System.out.println("HASH THREE - Key: " + key + " | HASH: " + base);
-           return result;
-   }
+       int intLength = String.valueOf(key).length();
+       int base = 10;
+       int result = 0;
+       for(int x = 0; x < intLength; x++){
+    	   		//System.out.println((key%base)/(base/10));
+               result += (((key%base)/(base/10)) * Math.pow(BASE,x));
+               base = base*10;
+       }
+       //System.out.println("HASH THREE - Key: " + key + " | HASH: " + result);
+       return result;
+}
    
-   public void rehash(){                	
-   	Random rand = new Random();
-   	/*
-   	int hashChanges = rand.nextInt(3);
-   	if (hashChanges == 1){
-   		tableOneHash = rand.nextInt(3);
-   		while (tableOneHash == tableTwoHash){
-   			tableOneHash = rand.nextInt(3);
-   		}
-   	} else if (hashChanges == 2){
-   		tableTwoHash = rand.nextInt(3);
-   		while (tableTwoHash == tableOneHash){
-   			tableTwoHash = rand.nextInt(3);
-   		}
-   	} else if (hashChanges == 3){
-   		 tableOneHash = rand.nextInt(3);
-   		 tableTwoHash = rand.nextInt(3);
-			while (tableOneHash == tableTwoHash){
-				tableOneHash = rand.nextInt(3);
-				tableTwoHash = rand.nextInt(3);
-			}
-   	}
-   	*/
-   	tableTwoHash = 3;
-   	MapEntry<Integer, V>[] tableClone = table.clone();
-   	MapEntry<Integer, V>[] tableTwoClone = tableTwo.clone();
-   	this.table = new MapEntry[table.length]; //size of table?
-   	this.tableTwo = new MapEntry[tableTwo.length]; //size of table two?
-   	this.size = 0;
-   	for (int x = 0; x < tableClone.length; x++){
-   		if (tableClone[x] != null){
-   			put(tableClone[x].getKey(),tableClone[x].getValue());
-   		}
-   	}
-   	for (int x = 0; x < tableTwoClone.length; x++){
-   		if(tableTwoClone[x] != null){
-   			put(tableTwoClone[x].getKey(),tableTwoClone[x].getValue());
-   		}
-   	}
+   public void rehash(){                        
+       Random rand = new Random();
+       int hashChanges = rand.nextInt(1) + 1;
+       int currentHashOne = tableOneHash;
+       int currentHashTwo = tableTwoHash;
+       if (hashChanges == 1){
+               if (tableOneHash == 1){
+            	   if (tableTwoHash == 2){
+            		   tableOneHash = 3;
+            	   } else {
+            		   tableOneHash = 2;
+            	   }
+               } else if (tableOneHash == 2){
+            	   if (tableTwoHash == 1){
+            		   tableOneHash = 3;
+            	   } else {
+            		   tableOneHash = 1;
+            	   }
+               } else {
+            	   if (tableTwoHash == 1){
+            		   tableOneHash = 2;
+            	   } else {
+            		   tableOneHash = 1;
+            	   }
+               }
+       } else {
+    	   if (tableTwoHash == 1){
+        	   if (tableOneHash == 2){
+        		   tableTwoHash = 3;
+        	   } else {
+        		   tableTwoHash = 2;
+        	   }
+           } else if (tableTwoHash == 2){
+        	   if (tableOneHash == 1){
+        		   tableTwoHash = 3;
+        	   } else {
+        		   tableTwoHash = 1;
+        	   }
+           } else {
+        	   if (tableOneHash == 1){
+        		   tableTwoHash = 2;
+        	   } else {
+        		   tableTwoHash = 1;
+        	   }
+           }
+    	   	   
+       } 
+       MapEntry<Integer, V>[] tableClone = table.clone();
+       MapEntry<Integer, V>[] tableTwoClone = tableTwo.clone();
+       table = new MapEntry[table.length]; //size of table?
+       tableTwo = new MapEntry[tableTwo.length]; //size of table two?
+       this.size = 0;
+      for (int x = 0; x < tableClone.length; x++){
+    	   	   if (tableClone[x] != null){
+                       put(tableClone[x].getKey(),tableClone[x].getValue());
+               }
+       }
+       for (int x = 0; x < tableTwoClone.length; x++){
+               if(tableTwoClone[x] != null){
+                       put(tableTwoClone[x].getKey(),tableTwoClone[x].getValue());
+               }
+       }
    }
+
 	
 	/*
 	 * The following methods will be used for grading purposes do not modify them
